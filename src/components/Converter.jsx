@@ -1,0 +1,65 @@
+import './converter.css';
+import { useState } from 'react'
+import usd from '../assets/usd.png'
+import eur from '../assets/eur.png'
+import gbp from '../assets/gbp.png'
+
+export default function Converter() {
+const [bedrag, setBedrag] = useState('');
+const [van, setVan] = useState('EUR');
+const [naar, setNaar] = useState('');
+const [resultaat, setResultaat] = useState(null);
+const [fout, setFout] = useState(null);
+
+async function omrekenen() {
+    if (!bedrag || isNaN(bedrag)) {
+        setFout('Voer een geldig bedrag in.');
+        setResultaat(null);
+        return;
+    }
+    try {
+        const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${van}`);
+        const data = await response.json();
+        const rate = data.rates[naar];
+        const convertedAmount = (bedrag * rate).toFixed(2);
+        setResultaat(`${bedrag} ${van} = ${convertedAmount} ${naar}`);
+        setFout(null);
+    } catch (error) {
+        setFout('Er is een fout opgetreden bij het ophalen van de wisselkoersen.');
+        setResultaat(null);
+    }   
+}   
+
+const vlaggen = {
+    'USD': usd,
+    'EUR': eur,
+    'GBP': gbp
+};
+
+return(
+   <div className="converter">
+    <h2>Currency converter</h2>
+     <div className="converter-box">
+      <input type="number" placeholder="Amount" value={bedrag} onChange={(e) => setBedrag(e.target.value)} />
+       <img src={vlaggen[van]} alt={van} className="flag" />
+        <select value={van} onChange={(e) => setVan(e.target.value)}  > 
+            <option value="USD">USD</option>  
+            <option value="EUR">EUR</option>  
+            <option value="GBP">GBP</option>  
+        </select> 
+
+        <span> 🔄  </span>
+
+        <img src={vlaggen[naar]} alt={naar} className="flag" />
+        <select value={naar} onChange={(e) => setNaar(e.target.value)}> 
+            <option value="USD">USD</option>  
+            <option value="EUR">EUR</option>  
+            <option value="GBP">GBP</option>  
+        </select>  
+        <button onClick={omrekenen}>Convert</button>
+        {resultaat && <div className="result">{resultaat}</div>}
+        {fout && <div className="error">{fout}</div>}   
+        </div>
+        </div>
+    ); 
+}
