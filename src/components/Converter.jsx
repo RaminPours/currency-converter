@@ -21,11 +21,11 @@ async function omrekenen() {
         const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${van}`);
         const data = await response.json();
         const rate = data.rates[naar];
-        const convertedAmount = (bedrag * rate).toFixed(2);
-        setResultaat(`${bedrag} ${van} = ${convertedAmount} ${naar}`);
+        const omrekenBedrag = (bedrag * rate).toFixed(2);
+        setResultaat(`${bedrag} ${van} = ${omrekenBedrag} ${naar}`);
         setFout(null);
     } catch (error) {
-        setFout('Er is een fout opgetreden bij het ophalen van de wisselkoersen.');
+        setFout(`Er is een fout opgetreden bij het ophalen van de wisselkoersen: ${error.message}`);
         setResultaat(null);
     }   
 }   
@@ -58,7 +58,7 @@ return(
         </select>  
         <button onClick={omrekenen}>Convert</button>
         {resultaat && <div className="result">{resultaat}</div>}
-        {fout && <div className="error">{fout}</div>}   
+        {fout && <div>{fout}</div>}   
         </div>
         </div>
     ); 
